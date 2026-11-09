@@ -1,0 +1,732 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#172228">
+<link rel="icon" type="image/png" href="iso.png">
+<meta property="og:title" content="NextRide">
+<meta property="og:description" content="Motos bien administradas en Cali. Cuota semanal fija para conductores, cuentas claras para inversionistas.">
+<meta property="og:image" content="logo.png">
+<title>NextRide</title>
+<meta name="description" content="NextRide: motos bien administradas en Cali. Cuota semanal fija para conductores, cuentas claras para inversionistas.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js" } }
+</script>
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.core.js">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@600;700&display=swap">
+<style>
+/* Layout: noche full-screen hero with the 3D logo moto, one orange marquee, white bands of tilting cards,
+   a pinned "ruta" where the moto rides the four steps, blue promise band, noche contact. Single brand look (60/30/10). */
+:root{
+  --azul:#0271B6; --azul-claro:#5AAEE6; --naranja:#F65A05; --naranja-osc:#B84203;
+  --noche:#172228; --noche-2:#1F2D35; --noche-3:#0F171B; --blanco:#FFFFFF;
+  --bg:#FFFFFF; --alt:#F2F5F7; --fg:#172228; --muted:#4D5A63; --line:#DDE3E7; --on-dark:#C9D4DA;
+  --display:"Poppins","Segoe UI",Arial,sans-serif;
+  --body:"Inter","Segoe UI",Arial,sans-serif;
+  --r-md:16px; --r-lg:26px; --pill:999px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+[id]{scroll-margin-top:76px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--noche)}
+h1,h2,h3{font-family:var(--display);line-height:1.08;margin:0;text-wrap:balance}
+h2{font-size:clamp(32px,4.6vw,54px);font-weight:700;letter-spacing:-.015em}
+h3{font-size:21px;font-weight:600}
+p{margin:0}
+a{color:inherit}
+img{max-width:100%;display:block}
+:focus-visible{outline:3px solid var(--azul-claro);outline-offset:3px;border-radius:8px}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.eyebrow{font-weight:600;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--azul);margin:0 0 14px}
+.lead{font-size:19px;color:var(--muted);max-width:58ch}
+section{padding-block:clamp(72px,10vw,120px)}
+
+.btn{display:inline-flex;align-items:center;gap:10px;font:600 16px/1 var(--body);padding:16px 24px;border-radius:var(--pill);text-decoration:none;border:2px solid transparent;cursor:pointer;transition:transform .15s ease,background .15s ease,border-color .15s ease,color .15s ease}
+.btn:hover{transform:translateY(-2px)}
+.btn svg{width:18px;height:18px;flex:none}
+.btn-naranja{background:var(--naranja);color:var(--noche)}
+.btn-naranja:hover{background:#FF6D1F}
+.btn-ghost{border-color:rgba(255,255,255,.35);color:#fff;background:transparent}
+.btn-ghost:hover{border-color:#fff}
+.btn-noche{background:var(--noche);color:#fff}
+.btn-noche:hover{background:#000}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:rgba(23,34,40,.9);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08)}
+.top .wrap{display:flex;align-items:center;gap:24px;height:70px}
+.top .logo img{height:44px;width:auto}
+.nav{display:flex;gap:28px;margin-left:auto}
+.nav a{color:#D5DEE3;text-decoration:none;font-size:15px;font-weight:600;padding-block:6px;border-bottom:2px solid transparent}
+.nav a:hover{color:#fff;border-color:var(--naranja)}
+.top .btn{padding:12px 18px;font-size:15px}
+@media (max-width:920px){.nav{display:none}.top .btn{margin-left:auto}}
+@media (max-width:400px){.top .btn{padding:11px 14px;font-size:14px}.top .logo img{height:38px}}
+
+/* hero */
+.hero{position:relative;padding-block:0;min-height:calc(100svh - 70px);display:flex;overflow:hidden;color:#fff;
+  background:radial-gradient(ellipse 55% 65% at 74% 48%,#21394A 0%,#172228 55%,#0F171B 100%)}
+.hero-stage{position:absolute;inset:0}
+.hero-stage canvas{position:relative;z-index:1;display:block;width:100%;height:100%;opacity:0;transition:opacity .6s ease}
+.hero-stage.on canvas{opacity:1}
+.hero-poster{position:absolute;right:4%;top:50%;width:min(44vw,560px);transform:translateY(-50%);transition:opacity .3s ease .5s}
+.hero-stage.on .hero-poster{opacity:0}
+.hero .wrap{position:relative;z-index:2;width:100%;display:flex;align-items:center;padding-block:64px 104px;pointer-events:none}
+.hero-copy{max-width:600px;pointer-events:auto}
+.hero .eyebrow{color:var(--azul-claro)}
+.hero h1{font-size:clamp(46px,7vw,92px);font-weight:700;letter-spacing:-.02em;line-height:1.02}
+.hero h1 .r{color:var(--naranja)}
+.hero h1 .hw{padding-bottom:.12em;margin-bottom:-.12em}
+.hero .lead{color:var(--on-dark);font-size:20px;margin-top:22px;max-width:46ch}
+.ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
+.desliza{position:absolute;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:2;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.55);display:flex;flex-direction:column;align-items:center;gap:8px}
+.desliza::after{content:"";width:2px;height:34px;border-radius:2px;background:linear-gradient(var(--naranja),transparent);animation:gota 2.2s ease-in-out infinite}
+@keyframes gota{0%,100%{transform:scaleY(.35);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}}
+@media (max-width:860px){
+  .hero{background:radial-gradient(ellipse 90% 45% at 50% 24%,#21394A 0%,#172228 55%,#0F171B 100%)}
+  .hero-stage{bottom:auto;height:44svh}
+  .hero .wrap{align-items:flex-end;padding-block:42svh 72px}
+  .hero-poster{right:50%;width:min(78vw,340px,38svh);transform:translate(50%,-50%)}
+  .desliza{display:none}
+}
+
+/* marquee */
+.cinta{background:var(--naranja);color:var(--noche);padding-block:0;overflow:hidden;border-block:1px solid rgba(0,0,0,.08)}
+.cinta-track{display:flex;width:max-content;animation:cinta 38s linear infinite}
+.cinta span{font:700 clamp(18px,2.4vw,26px)/1 var(--display);padding:20px 0;white-space:nowrap;display:flex;align-items:center}
+.cinta span::after{content:"";width:12px;height:12px;border-radius:50%;border:3px solid currentColor;margin:0 28px}
+@keyframes cinta{to{transform:translateX(-50%)}}
+
+/* model cards */
+.head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px;align-items:end;margin-bottom:48px}
+@media (max-width:860px){.head{grid-template-columns:1fr;gap:16px}}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;perspective:1100px}
+@media (max-width:900px){.cards{grid-template-columns:1fr}}
+.card{position:relative;border-radius:var(--r-lg);padding:32px 30px 30px;display:flex;flex-direction:column;gap:14px;background:var(--alt);
+  transform-style:preserve-3d;--rx:0deg;--ry:0deg;--mx:50%;--my:0%;--lift:0px;
+  transform:rotateX(var(--rx)) rotateY(var(--ry)) translateZ(var(--lift));
+  box-shadow:0 1px 2px rgba(23,34,40,.05);transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s cubic-bezier(.2,.8,.2,1)}
+.card::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .35s;
+  background:radial-gradient(circle at var(--mx) var(--my),rgba(255,255,255,.8),rgba(255,255,255,0) 45%);mix-blend-mode:soft-light}
+.card .ic{width:58px;height:58px;border-radius:18px;display:grid;place-items:center;background:var(--noche);color:#fff;transform:translateZ(30px);transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.card .ic svg{width:28px;height:28px}
+.card h3{font-size:26px;transform:translateZ(16px)}
+.card .quien{font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--azul)}
+.card p{color:var(--muted);font-size:16px}
+.card ul{list-style:none;padding:0;margin:4px 0 0;display:grid;gap:8px;font-size:15px}
+.card li{display:flex;gap:10px;align-items:flex-start}
+.card li::before{content:"";flex:none;width:12px;height:12px;margin-top:6px;border-radius:50%;border:2.5px solid var(--azul);border-top-color:transparent;transform:rotate(-45deg)}
+.card .btn{margin-top:auto;align-self:flex-start}
+.card.destacada{background:var(--noche);color:#fff}
+.card.destacada p,.card.destacada li{color:var(--on-dark)}
+.card.destacada .quien{color:var(--azul-claro)}
+.card.destacada .ic{background:var(--naranja);color:var(--noche)}
+.card.destacada li::before{border-color:var(--naranja);border-top-color:transparent}
+.card .tail{margin-top:8px}
+@media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+  .card.is-hover{--lift:18px;transition:transform .12s ease-out,box-shadow .2s ease-out;box-shadow:var(--sx,0px) var(--sy,22px) 44px -10px rgba(23,34,40,.32),0 4px 10px rgba(23,34,40,.08)}
+  .card.is-hover::after{opacity:1}
+  .card.is-hover .ic{transform:translateZ(46px) scale(1.05)}
+}
+@media (prefers-reduced-motion:no-preference){
+  .card.is-touch{--lift:12px;box-shadow:var(--sx,0px) var(--sy,18px) 34px -8px rgba(23,34,40,.3)}
+  .card.is-touch::after{opacity:1}
+}
+.card.entrando{transition:none}
+
+/* ruta (steps) */
+.ruta{background:var(--noche);color:#fff;position:relative;overflow:hidden}
+.ruta .eyebrow{color:var(--azul-claro)}
+.ruta .lead{color:var(--on-dark)}
+.via{position:relative;margin-top:64px}
+.camino{position:absolute;left:0;right:0;top:34px;height:6px;border-radius:6px;background:rgba(255,255,255,.1)}
+.camino i{position:absolute;inset:0;border-radius:inherit;background:linear-gradient(90deg,var(--azul),var(--naranja));transform-origin:left center;transform:scaleX(1)}
+.moto{position:absolute;top:-44px;left:0;width:96px;height:auto;transform:translateX(calc(var(--k,1) * (100cqw - 96px)));filter:drop-shadow(0 8px 14px rgba(0,0,0,.4))}
+.via{container-type:inline-size}
+.pasos{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;position:relative}
+.paso{padding-top:76px;position:relative}
+.paso .n{position:absolute;top:14px;left:0;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--noche);border:3px solid var(--azul);font:700 16px var(--display);color:#fff}
+.paso:last-child .n{border-color:var(--naranja)}
+.paso h3{font-size:22px}
+.paso p{color:var(--on-dark);font-size:15px;margin-top:8px;max-width:30ch}
+.ruta .ctas{margin-top:56px}
+@media (max-width:860px){
+  .via{margin-top:40px}
+  .camino{left:21px;right:auto;top:0;bottom:0;width:6px;height:auto}
+  .camino i{transform-origin:center top;background:linear-gradient(180deg,var(--azul),var(--naranja))}
+  .moto{display:none}
+  .pasos{grid-template-columns:1fr;gap:36px}
+  .paso{padding-top:0;padding-left:72px;min-height:46px}
+  .paso .n{top:0}
+}
+
+/* promise */
+.cuota{background:var(--azul);color:#fff;overflow:hidden;position:relative}
+.cuota .wrap{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:40px;align-items:center}
+.cuota h2{font-size:clamp(36px,5.6vw,68px)}
+.cuota p{color:#E3F0F9;font-size:19px;margin-top:18px;max-width:50ch}
+.cuota .btn{margin-top:30px}
+.semana{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.dia{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:14px 6px;text-align:center;font-size:13px;font-weight:600;letter-spacing:.06em}
+.dia b{display:block;font:700 18px var(--display);margin-top:6px;letter-spacing:0}
+.dia.pago{background:var(--naranja);border-color:var(--naranja);color:var(--noche)}
+.semana-nota{grid-column:1/-1;font-size:14px;color:#E3F0F9;margin-top:6px}
+@media (max-width:860px){.cuota .wrap{grid-template-columns:1fr}}
+@media (max-width:420px){.dia{padding:10px 2px;font-size:11px}.dia b{font-size:15px}}
+
+/* values */
+.valores{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;perspective:1100px}
+@media (max-width:960px){.valores{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:540px){.valores{grid-template-columns:1fr}}
+.valores .card{background:var(--bg);border:1px solid var(--line);padding:28px}
+.valores .card h3{font-size:21px}
+.arco{width:48px;height:48px;transform:translateZ(26px)}
+
+/* cities */
+.alt{background:var(--alt)}
+.ciudades{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;position:relative;margin-top:8px}
+.ciudades::before{content:"";position:absolute;left:16.6%;right:16.6%;top:27px;border-top:3px dashed #B9C6CE}
+.ciudad{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;position:relative}
+.pin{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:var(--bg);border:3px solid #B9C6CE;position:relative}
+.pin::after{content:"";width:16px;height:16px;border-radius:50%;background:#B9C6CE}
+.ciudad.on .pin{border-color:var(--naranja)}
+.ciudad.on .pin::after{background:var(--naranja)}
+.ciudad.on .pin::before{content:"";position:absolute;inset:-10px;border-radius:50%;border:2px solid var(--naranja);opacity:.5;animation:pulso 2s ease-out infinite}
+@keyframes pulso{from{transform:scale(.8);opacity:.6}to{transform:scale(1.35);opacity:0}}
+.ciudad h3{font-size:clamp(22px,3vw,30px);font-weight:700}
+.estado{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:6px 12px;border-radius:var(--pill);border:1px solid var(--line);color:var(--muted);background:var(--bg)}
+.ciudad.on .estado{background:var(--naranja);border-color:var(--naranja);color:var(--noche)}
+@media (max-width:600px){
+  .ciudades{grid-template-columns:1fr;gap:28px}
+  .ciudades::before{left:27px;right:auto;top:28px;bottom:28px;border-top:0;border-left:3px dashed #B9C6CE}
+  .ciudad{flex-direction:row;text-align:left;gap:16px}
+  .ciudad h3{flex:1}
+}
+
+/* faq */
+.faq-grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:56px;align-items:start}
+@media (max-width:860px){.faq-grid{grid-template-columns:1fr;gap:28px}}
+.faq{border-top:1px solid var(--line)}
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{list-style:none;cursor:pointer;padding:22px 44px 22px 0;font:600 18px/1.35 var(--display);position:relative}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"";position:absolute;right:8px;top:50%;width:12px;height:12px;margin-top:-9px;border-right:2.5px solid var(--azul);border-bottom:2.5px solid var(--azul);transform:rotate(45deg);transition:transform .25s}
+.faq details[open] summary::after{transform:rotate(-135deg);margin-top:-3px}
+.faq details p{color:var(--muted);padding:0 0 22px;max-width:62ch}
+
+/* contact */
+.contacto{background:var(--noche);color:#fff}
+.contacto .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:56px;align-items:start}
+@media (max-width:860px){.contacto .wrap{grid-template-columns:1fr;gap:36px}}
+.contacto .eyebrow{color:var(--azul-claro)}
+.contacto .lead{color:var(--on-dark);margin-top:18px}
+.datos{margin-top:32px;display:grid;gap:12px}
+.dato{display:flex;align-items:center;gap:14px;background:var(--noche-2);border-radius:var(--r-md);padding:14px 16px}
+.dato .ic{width:42px;height:42px;border-radius:50%;background:var(--azul);display:grid;place-items:center;flex:none}
+.dato .ic svg{width:20px;height:20px}
+.dato small{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8FA0AA;font-weight:600}
+form{background:var(--noche-2);border-radius:var(--r-lg);padding:clamp(22px,4vw,36px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+form h3{grid-column:1/-1;font-size:24px}
+form .full{grid-column:1/-1}
+@media (max-width:560px){form{grid-template-columns:1fr}}
+label{display:grid;gap:6px;font-size:14px;font-weight:600;color:#D5DEE3}
+label .opt{font-weight:400;color:#8FA0AA}
+input,select,textarea{font:400 16px var(--body);color:#fff;background:var(--noche-3);border:1.5px solid #33444E;border-radius:12px;padding:13px 14px;width:100%;color-scheme:dark}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--azul-claro);box-shadow:0 0 0 3px rgba(90,174,230,.25)}
+textarea{min-height:92px;resize:vertical}
+.perfiles{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;border:0;padding:0;margin:0}
+.perfiles legend{font-size:14px;font-weight:600;color:#D5DEE3;margin-bottom:8px;padding:0}
+.perfiles input{position:absolute;opacity:0;width:1px;height:1px}
+.perfiles label{display:inline-flex;font-weight:600;font-size:14px;padding:10px 16px;border-radius:var(--pill);border:1.5px solid #33444E;cursor:pointer;color:#D5DEE3}
+.perfiles input:checked + label{background:var(--naranja);border-color:var(--naranja);color:var(--noche)}
+.perfiles input:focus-visible + label{outline:3px solid var(--azul-claro);outline-offset:2px}
+form .btn{justify-self:start}
+.aviso{grid-column:1/-1;color:#FF9C66;font-size:14px;font-weight:600}
+.listo{grid-column:1/-1;background:rgba(90,174,230,.1);border:1px solid rgba(90,174,230,.35);border-radius:var(--r-md);padding:18px;display:grid;gap:12px}
+.listo pre{margin:0;white-space:pre-wrap;font:14px/1.5 var(--body);color:#DCEEFA;background:var(--noche-3);border-radius:10px;padding:12px 14px}
+.listo .acc{display:flex;flex-wrap:wrap;gap:10px}
+.listo .btn{padding:12px 18px;font-size:15px}
+.nota{grid-column:1/-1;font-size:13px;color:#8FA0AA}
+
+footer{background:var(--noche-3);color:#8FA0AA;font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:18px 32px;justify-content:space-between;align-items:center;padding-block:32px}
+footer img{height:36px;width:auto}
+.franja{height:8px;background:var(--naranja)}
+</style>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#inicio" aria-label="NextRide, inicio"><img src="logo.png" alt="NextRide" width="90" height="44"></a>
+    <nav class="nav" aria-label="Secciones">
+      <a href="#modelo">Modelo</a>
+      <a href="#ruta">Cómo empezar</a>
+      <a href="#ciudades">Ciudades</a>
+      <a href="#preguntas">Preguntas</a>
+    </nav>
+    <a class="btn btn-naranja" href="#contacto" data-perfil="conductor">Quiero mi moto</a>
+  </div>
+</header>
+
+<main id="inicio">
+  <section class="hero" id="hero" aria-label="NextRide">
+    <div class="hero-stage" id="hero-stage" aria-hidden="true">
+      <img class="hero-poster" src="iso.png" alt="" width="256" height="141" fetchpriority="high">
+    </div>
+    <div class="wrap">
+      <div class="hero-copy">
+        <p class="eyebrow">Movilidad en moto · Cali, Colombia</p>
+        <h1>Tu próxima ruta empieza <span class="r">aquí.</span></h1>
+        <p class="lead">Administramos flotas de motocicletas y conectamos a conductores, inversionistas y ensambladoras en un mismo modelo, con reglas claras para todos.</p>
+        <div class="ctas">
+          <a class="btn btn-naranja" href="#contacto" data-perfil="conductor">Quiero mi moto
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn btn-ghost" href="#contacto" data-perfil="inversionista">Soy inversionista</a>
+        </div>
+      </div>
+    </div>
+    <span class="desliza">Desliza</span>
+  </section>
+
+  <section class="cinta" aria-label="Lo que ofrecemos">
+    <div class="cinta-track">
+      <span>Cuota semanal fija</span><span>Motos bien administradas</span><span>Reglas claras</span><span>Cuentas transparentes</span><span>Cali · Medellín · Bogotá</span>
+      <span aria-hidden="true">Cuota semanal fija</span><span aria-hidden="true">Motos bien administradas</span><span aria-hidden="true">Reglas claras</span><span aria-hidden="true">Cuentas transparentes</span><span aria-hidden="true">Cali · Medellín · Bogotá</span>
+    </div>
+  </section>
+
+  <section id="modelo">
+    <div class="wrap">
+      <div class="head">
+        <div>
+          <p class="eyebrow">Un modelo, tres aliados</p>
+          <h2>Cada quien pone lo suyo. Todos ruedan.</h2>
+        </div>
+        <p class="lead">NextRide está en el medio: compra y administra las motos, acompaña al conductor y rinde cuentas claras a quien invierte.</p>
+      </div>
+      <div class="cards">
+        <article class="card destacada">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5.5" cy="17" r="3.5"/><circle cx="18.5" cy="17" r="3.5"/><path d="M15 6h2.5l3 8"/><path d="M5.5 17 9 10h6l3.5 7"/><path d="M9 10 8 7H5"/></svg></span>
+          <span class="quien">Conductores</span>
+          <h3>Recibe tu moto y empieza a producir esta semana.</h3>
+          <ul>
+            <li>Cuota semanal fija desde el primer día</li>
+            <li>Moto con revisiones y papeles al día</li>
+            <li>Un equipo en Cali que te contesta</li>
+          </ul>
+          <a class="btn btn-naranja tail" href="#contacto" data-perfil="conductor">Quiero mi moto</a>
+        </article>
+        <article class="card">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg></span>
+          <span class="quien">Inversionistas</span>
+          <h3>Su capital, en motos que trabajan todos los días.</h3>
+          <ul>
+            <li>Recaudo semanal y reportes periódicos</li>
+            <li>Mantenimiento para cuidar el activo</li>
+            <li>Contratos que dicen qué recibe cada parte</li>
+          </ul>
+          <a class="btn btn-noche tail" href="#contacto" data-perfil="inversionista">Solicitar información</a>
+        </article>
+        <article class="card">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 20V9l6 4V9l6 4V5h8v15z"/><path d="M6 17h2M11 17h2M16 17h2"/></svg></span>
+          <span class="quien">Ensambladoras</span>
+          <h3>Un canal de venta con demanda constante.</h3>
+          <ul>
+            <li>Compras por lotes según crece la flota</li>
+            <li>Datos de desempeño en trabajo diario</li>
+            <li>Cada ciudad nueva, un mercado nuevo</li>
+          </ul>
+          <a class="btn btn-noche tail" href="#contacto" data-perfil="ensambladora">Hablemos</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="ruta" id="ruta">
+    <div class="wrap">
+      <div class="head">
+        <div>
+          <p class="eyebrow">Para conductores</p>
+          <h2>De la solicitud a la calle en cuatro pasos</h2>
+        </div>
+        <p class="lead">Sin vueltas: te decimos qué necesitas, cuánto pagas y cuándo recibes la moto.</p>
+      </div>
+      <div class="via">
+        <div class="camino" aria-hidden="true"><i></i></div>
+        <img class="moto" src="iso.png" alt="" aria-hidden="true" width="256" height="141">
+        <ol class="pasos">
+          <li class="paso"><span class="n">1</span><h3>Déjanos tus datos</h3><p>Llena el formulario y te llamamos para conocerte.</p></li>
+          <li class="paso"><span class="n">2</span><h3>Revisamos tu perfil</h3><p>Verificamos documentos y licencia de conducción vigente.</p></li>
+          <li class="paso"><span class="n">3</span><h3>Firmas con reglas claras</h3><p>Un contrato que dice cuánto pagas, cada cuánto y qué incluye.</p></li>
+          <li class="paso"><span class="n">4</span><h3>Recibes tu moto</h3><p>Sales a trabajar esa misma semana con tu moto al día.</p></li>
+        </ol>
+      </div>
+      <div class="ctas"><a class="btn btn-naranja" href="#contacto" data-perfil="conductor">Empezar el paso 1</a></div>
+    </div>
+  </section>
+
+  <section class="cuota">
+    <div class="wrap">
+      <div>
+        <h2>Cuota semanal fija, sin sorpresas.</h2>
+        <p>Te decimos el valor antes de firmar y no cambia. Así organizas tu semana sabiendo exactamente cuánto te queda.</p>
+        <a class="btn btn-naranja" href="#contacto" data-perfil="conductor">Conoce el valor de tu cuota</a>
+      </div>
+      <div class="semana" aria-label="Una semana de trabajo: seis días rodando y un día de pago">
+        <div class="dia">LUN<b>Rueda</b></div><div class="dia">MAR<b>Rueda</b></div><div class="dia">MIÉ<b>Rueda</b></div>
+        <div class="dia">JUE<b>Rueda</b></div><div class="dia">VIE<b>Rueda</b></div><div class="dia">SÁB<b>Rueda</b></div>
+        <div class="dia pago">DOM<b>Cuota</b></div>
+        <p class="semana-nota">Ejemplo de semana. El día de pago se acuerda en el contrato.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="head">
+        <div>
+          <p class="eyebrow">Lo que nos guía</p>
+          <h2>Confiables como un buen administrador</h2>
+        </div>
+        <p class="lead">Ágiles como una moto en la ciudad y cercanos como el vecino que te presta la herramienta.</p>
+      </div>
+      <div class="valores">
+        <article class="card"><svg class="arco" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M17 9A16 16 0 1 1 9 17" stroke="#F65A05" stroke-width="5" stroke-linecap="round"/><circle cx="24" cy="24" r="4" fill="#F65A05"/></svg><h3>Transparencia en las cuentas</h3><p>Cifras reales, a tiempo, para conductores e inversionistas.</p></article>
+        <article class="card"><svg class="arco" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M17 9A16 16 0 1 1 9 17" stroke="#0271B6" stroke-width="5" stroke-linecap="round"/><circle cx="24" cy="24" r="4" fill="#0271B6"/></svg><h3>Cumplimiento</h3><p>Lo que firmamos, lo hacemos. Y lo pedimos igual.</p></article>
+        <article class="card"><svg class="arco" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M17 9A16 16 0 1 1 9 17" stroke="#0271B6" stroke-width="5" stroke-linecap="round"/><circle cx="24" cy="24" r="4" fill="#0271B6"/></svg><h3>Cuidado del activo</h3><p>Una moto bien cuidada trabaja más y dura más.</p></article>
+        <article class="card"><svg class="arco" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M17 9A16 16 0 1 1 9 17" stroke="#0271B6" stroke-width="5" stroke-linecap="round"/><circle cx="24" cy="24" r="4" fill="#0271B6"/></svg><h3>Crecimiento compartido</h3><p>Si la flota crece, crecen todos los que la mueven.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="alt" id="ciudades">
+    <div class="wrap">
+      <div class="head">
+        <div>
+          <p class="eyebrow">Dónde estamos</p>
+          <h2>Empezamos en Cali. Vamos por más.</h2>
+        </div>
+        <p class="lead">Nuestra sede está en Cali. Medellín y Bogotá son las próximas paradas de la ruta.</p>
+      </div>
+      <div class="ciudades">
+        <div class="ciudad on"><span class="pin" aria-hidden="true"></span><h3>Cali</h3><span class="estado">Operando</span></div>
+        <div class="ciudad"><span class="pin" aria-hidden="true"></span><h3>Medellín</h3><span class="estado">Próximamente</span></div>
+        <div class="ciudad"><span class="pin" aria-hidden="true"></span><h3>Bogotá</h3><span class="estado">Próximamente</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="preguntas">
+    <div class="wrap faq-grid">
+      <div>
+        <p class="eyebrow">Preguntas frecuentes</p>
+        <h2>Lo que más nos preguntan</h2>
+      </div>
+      <div class="faq">
+        <details open><summary>¿Qué necesito para recibir una moto?</summary><p>Documento de identidad, licencia de conducción vigente para moto y ganas de trabajar. En la llamada te contamos el resto de requisitos.</p></details>
+        <details><summary>¿Cuánto es la cuota semanal?</summary><p>Depende del modelo de moto. Te damos el valor exacto antes de firmar y se mantiene fijo durante el contrato.</p></details>
+        <details><summary>¿Quién se encarga del mantenimiento?</summary><p>NextRide coordina las revisiones para que la moto esté siempre lista para trabajar. En el contrato queda claro qué cubre cada parte.</p></details>
+        <details><summary>¿Cómo funciona la inversión en motos?</summary><p>Usted financia unidades de la flota y NextRide las opera. Recibe reportes del recaudo y del estado de cada moto. Escríbanos y le enviamos la propuesta completa.</p></details>
+        <details><summary>¿Cuándo llegan a Medellín y Bogotá?</summary><p>Estamos preparando la llegada a ambas ciudades. Déjanos tus datos y te avisamos primero.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="contacto" id="contacto">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">Contacto</p>
+        <h2>Hablemos de tu próxima ruta</h2>
+        <p class="lead">Llena el formulario y te dejamos listo el mensaje para WhatsApp con tus datos. Atendemos a conductores, inversionistas y ensambladoras.</p>
+        <div class="datos">
+          <div class="dato"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg></span><div><small>Sede</small>Cali, Colombia</div></div>
+          <div class="dato"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h18M13 6l6 6-6 6"/></svg></span><div><small>Próximas ciudades</small>Medellín y Bogotá</div></div>
+        </div>
+      </div>
+      <form id="form" novalidate>
+        <h3>Déjanos tus datos</h3>
+        <fieldset class="perfiles">
+          <legend>Soy</legend>
+          <input type="radio" name="perfil" id="p-conductor" value="conductor" checked><label for="p-conductor">Conductor</label>
+          <input type="radio" name="perfil" id="p-inversionista" value="inversionista"><label for="p-inversionista">Inversionista</label>
+          <input type="radio" name="perfil" id="p-ensambladora" value="ensambladora"><label for="p-ensambladora">Ensambladora</label>
+        </fieldset>
+        <label for="f-nombre">Nombre y apellido<input id="f-nombre" name="nombre" autocomplete="name" required></label>
+        <label for="f-cel">Celular (WhatsApp)<input id="f-cel" name="cel" type="tel" inputmode="tel" autocomplete="tel" placeholder="300 123 4567" required></label>
+        <label for="f-ciudad" class="full">Ciudad
+          <select id="f-ciudad" name="ciudad"><option>Cali</option><option>Medellín</option><option>Bogotá</option><option>Otra</option></select>
+        </label>
+        <label for="f-msg" class="full">Mensaje <span class="opt">(opcional)</span><textarea id="f-msg" name="msg" placeholder="Cuéntanos qué buscas"></textarea></label>
+        <p class="aviso" id="aviso" hidden role="alert"></p>
+        <button class="btn btn-naranja" type="submit">Preparar mensaje
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        <div class="listo" id="listo" hidden role="status">
+          <pre id="msg-out"></pre>
+          <div class="acc">
+            <a class="btn btn-naranja" id="wa-go" href="#" target="_blank" rel="noopener" hidden>Abrir WhatsApp</a>
+            <button class="btn btn-ghost" type="button" id="copiar">Copiar mensaje</button>
+          </div>
+        </div>
+        <p class="nota" id="nota-wa">Vista previa: falta conectar el número de WhatsApp de NextRide. Mientras tanto puedes copiar el mensaje.</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <img src="logo.png" alt="NextRide" width="73" height="36">
+    <span>Movilidad en dos ruedas, administrada con confianza · Cali, Colombia · 2026</span>
+  </div>
+  <div class="franja"></div>
+</footer>
+
+<script>
+/* Contact: profile buttons pre-select the form; the form builds a WhatsApp message. Put NextRide's number here. */
+window.NR_CONFIG = { whatsapp: "" }; // e.g. "573001234567" (country code + number, digits only)
+(function(){
+  const perfilDe = (v) => document.getElementById("p-" + v);
+  document.querySelectorAll("[data-perfil]").forEach(a => a.addEventListener("click", () => { const r = perfilDe(a.dataset.perfil); if (r) r.checked = true; }));
+  const f = document.getElementById("form"), aviso = document.getElementById("aviso"), listo = document.getElementById("listo"),
+        out = document.getElementById("msg-out"), go = document.getElementById("wa-go"), nota = document.getElementById("nota-wa");
+  const num = (NR_CONFIG.whatsapp || "").replace(/\D/g, "");
+  if (num) nota.hidden = true;
+  const etiquetas = { conductor: "conductor", inversionista: "inversionista", ensambladora: "ensambladora o concesionario" };
+  f.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const nombre = f.nombre.value.trim(), cel = f.cel.value.trim();
+    if (!nombre || cel.replace(/\D/g, "").length < 7) {
+      aviso.hidden = false;
+      aviso.textContent = !nombre ? "Escribe tu nombre para saber con quién hablamos." : "Escribe un celular válido para poder contactarte.";
+      (nombre ? f.cel : f.nombre).focus(); return;
+    }
+    aviso.hidden = true;
+    const perfil = f.perfil.value, extra = f.msg.value.trim();
+    const texto = "Hola NextRide, soy " + nombre + ". Soy " + etiquetas[perfil] + " en " + f.ciudad.value + ". Mi celular es " + cel + "." + (extra ? "\n" + extra : "");
+    out.textContent = texto;
+    listo.hidden = false;
+    if (num) { go.href = "https://wa.me/" + num + "?text=" + encodeURIComponent(texto); go.hidden = false; }
+  });
+  document.getElementById("copiar").addEventListener("click", (e) => {
+    const b = e.currentTarget;
+    const done = () => { b.textContent = "Copiado"; setTimeout(() => b.textContent = "Copiar mensaje", 1800); };
+    const sel = () => { const r = document.createRange(); r.selectNodeContents(out); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = "Texto seleccionado"; };
+    try { navigator.clipboard.writeText(out.textContent).then(done, sel); } catch (_) { sel(); }
+  });
+})();
+</script>
+
+<script type="module">
+/* Hero: the NextRide moto from the logo in 3D, with speed streaks behind. Sways gently, leans toward the pointer,
+   and the camera dollies in as the hero scrolls away. The SVG poster stays if WebGL or the library is missing. */
+const hero = document.getElementById("hero"), stage = document.getElementById("hero-stage");
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const lite = matchMedia("(pointer: coarse), (max-width: 860px)").matches;
+function gl(){ try { const c = document.createElement("canvas"); return !!(c.getContext("webgl2") || c.getContext("webgl")); } catch (e) { return false; } }
+if (gl()) import("three").then(mount).catch(() => {});
+
+function mount(THREE){
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+  renderer.setClearColor(0x000000, 0);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.1;
+  stage.prepend(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
+
+  // studio-ish lighting without an environment map: warm key, blue rim from behind, soft fill
+  const key = new THREE.DirectionalLight(0xfff1e6, 2.4); key.position.set(4, 5, 6);
+  const rim = new THREE.DirectionalLight(0x5aaee6, 3.2); rim.position.set(-5, 2, -4);
+  const low = new THREE.DirectionalLight(0xf65a05, 1.2); low.position.set(2, -4, 3);
+  scene.add(key, rim, low, new THREE.HemisphereLight(0xdfefff, 0x172228, 0.9));
+
+  const rig = new THREE.Group(); scene.add(rig);
+
+  const naranja = new THREE.MeshPhysicalMaterial({ color: 0xf65a05, roughness: 0.3, metalness: 0.1, clearcoat: 1, clearcoatRoughness: 0.08, emissive: 0x5a1800, emissiveIntensity: 0.25 });
+  const azul = new THREE.MeshPhysicalMaterial({ color: 0x0271b6, roughness: 0.32, metalness: 0.12, clearcoat: 1, clearcoatRoughness: 0.1, emissive: 0x002a48, emissiveIntensity: 0.3 });
+
+  // The NextRide moto, traced from the original isotipo and given volume: blue body, orange front wheel.
+  // Seen from the front its silhouette is the logo; the sway shows the depth.
+  const MOTO = {"azul":[{"o":[[1.0658,0.2544],[1.0746,0.2281],[1.1404,0.1272],[1.3816,0.136],[1.4868,0.1623],[1.5175,0.1842],[1.5175,0.1974],[1.4693,0.2325],[1.3728,0.2632],[1.1579,0.2675]],"h":[]},{"o":[[0.6096,0.2105],[0.5877,0.25],[0.5482,0.2763],[0.4868,0.2763],[0.4605,0.2632],[0.4167,0.2061],[0.0877,-0.3377],[0.0219,-0.3991],[-0.0746,-0.4386],[-0.114,-0.4474],[-0.5658,-0.4474],[-0.6447,-0.4298],[-1.1579,-0.2632],[-1.2237,-0.2588],[-1.3114,-0.2939],[-1.3596,-0.3465],[-1.3772,-0.3904],[-1.3684,-0.4605],[-1.3158,-0.5175],[-1.2456,-0.5439],[-1.1535,-0.5439],[-1.114,-0.5526],[-0.9474,-0.5614],[-0.886,-0.5746],[-0.9211,-0.6491],[-0.9956,-0.7325],[-1.0746,-0.7851],[-1.2061,-0.8246],[-1.3026,-0.8246],[-1.3728,-0.807],[-1.4474,-0.7719],[-1.5395,-0.693],[-1.6009,-0.6009],[-1.636,-0.4737],[-1.636,-0.3816],[-1.614,-0.2982],[-1.5921,-0.2544],[-1.5175,-0.1535],[-1.4561,-0.1053],[-1.3684,-0.0614],[-1.2763,-0.0439],[-1.2237,-0.0439],[-1.1316,-0.0614],[-1.0263,-0.1053],[-0.9693,-0.1447],[-0.8816,-0.2456],[-0.6974,-0.2982],[-0.6798,-0.2982],[-0.6842,-0.2632],[-0.7325,-0.1535],[-0.7851,-0.0789],[-0.8596,-0.0044],[-0.9474,0.057],[-1.0482,0.1009],[-1.1623,0.1272],[-1.3246,0.1272],[-1.4518,0.0965],[-1.5351,0.057],[-1.6316,-0.0132],[-1.7237,-0.1228],[-1.7632,-0.193],[-1.7982,-0.2895],[-1.8158,-0.4123],[-1.807,-0.5351],[-1.7763,-0.6491],[-1.7368,-0.7281],[-1.6535,-0.8377],[-1.5789,-0.8991],[-1.4781,-0.9561],[-1.4167,-0.9781],[-1.307,-1.0],[-1.1886,-1.0],[-1.0482,-0.9693],[-0.9868,-0.943],[-0.8947,-0.886],[-0.7939,-0.7895],[-0.7412,-0.7105],[-0.693,-0.6053],[-0.0789,-0.6096],[0.0439,-0.5746],[0.1491,-0.5132],[0.2456,-0.4211],[0.2851,-0.364],[0.4386,-0.1053],[0.4825,-0.0175],[0.5921,0.1491],[0.6096,0.1886]],"h":[]},{"o":[[0.4123,0.5482],[0.3816,0.6096],[0.3509,0.6272],[0.2281,0.6447],[0.0439,0.6447],[-0.0175,0.636],[-0.1316,0.6009],[-0.2412,0.5439],[-0.3333,0.4737],[-0.4605,0.3553],[-0.6579,0.364],[-0.7982,0.386],[-0.8596,0.4079],[-0.8947,0.4298],[-1.0,0.5307],[-1.0789,0.5526],[-1.5263,0.5526],[-1.557,0.5351],[-1.5658,0.4868],[-1.5526,0.4561],[-1.5,0.4211],[-1.2895,0.3377],[-1.1184,0.2807],[-0.8728,0.1711],[-0.7412,0.0877],[-0.5088,-0.0877],[-0.4561,-0.1053],[-0.4211,-0.1053],[-0.3728,-0.0789],[-0.3728,-0.0263],[-0.4605,0.0877],[-0.5439,0.1711],[-0.5395,0.1886],[-0.3904,0.1798],[-0.3333,0.1974],[-0.1184,0.3991],[0.0044,0.4649],[0.0439,0.4737],[0.1667,0.4737],[0.364,0.4605],[0.4035,0.4956]],"h":[]},{"o":[[0.0219,0.9825],[0.0088,0.9605],[0.0,0.9167],[0.0175,0.8728],[0.0351,0.8596],[0.3289,0.8289],[0.3772,0.807],[0.4254,0.7588],[0.8158,0.1535],[0.8158,0.1404],[0.6842,-0.0219],[0.6272,-0.1228],[0.5658,-0.2939],[0.5658,-0.3465],[0.5833,-0.3816],[0.6096,-0.4079],[0.6404,-0.3947],[0.7237,-0.2237],[0.864,0.0175],[0.8772,0.0219],[1.0132,-0.1623],[1.2105,-0.4605],[1.2368,-0.4781],[1.2851,-0.4781],[1.3026,-0.4693],[1.3421,-0.4211],[1.3421,-0.3816],[1.3158,-0.3158],[1.1009,0.0351],[0.807,0.4605],[0.8114,0.4737],[0.9123,0.4737],[0.9781,0.4825],[1.0088,0.4956],[1.0439,0.5395],[1.0526,0.5658],[1.0526,0.7061],[1.0351,0.7763],[0.9956,0.8509],[0.9649,0.8772],[0.8377,0.8772],[0.7939,0.864],[0.7544,0.8421],[0.7105,0.7982],[0.6842,0.7456],[0.6754,0.7061],[0.6579,0.7018],[0.5175,0.8947],[0.4386,0.9605],[0.3289,0.9825],[0.0877,1.0],[0.0439,0.9956]],"h":[]}],"naranja":[{"o":[[1.5526,0.0702],[1.5219,0.0746],[1.4693,0.0395],[1.4167,0.0175],[1.3421,0.0044],[1.3421,-0.0044],[1.4649,-0.0702],[1.5526,-0.1535],[1.614,-0.2544],[1.6404,-0.3465],[1.6404,-0.4649],[1.5965,-0.6009],[1.5219,-0.7018],[1.4211,-0.7763],[1.3202,-0.8114],[1.193,-0.8202],[1.0746,-0.7895],[0.9693,-0.7237],[0.8947,-0.6447],[0.8421,-0.5439],[0.8202,-0.4386],[0.8246,-0.3026],[0.8158,-0.3026],[0.7588,-0.386],[0.7149,-0.4298],[0.6667,-0.4518],[0.6667,-0.4956],[0.7018,-0.6228],[0.7456,-0.7105],[0.8114,-0.8026],[0.8596,-0.8509],[0.9298,-0.9035],[1.0395,-0.9561],[1.1404,-0.9825],[1.3114,-0.9868],[1.364,-0.9781],[1.4693,-0.943],[1.557,-0.8947],[1.6579,-0.8114],[1.7281,-0.7193],[1.7763,-0.6272],[1.807,-0.5175],[1.8158,-0.3596],[1.8026,-0.2763],[1.7544,-0.1447],[1.7105,-0.0746],[1.6447,0.0]],"h":[]}],"w":3.6316};
+  const SC = 1.25;
+  const moto = new THREE.Group(); rig.add(moto);
+  const shapeOf = (sh) => {
+    const shape = new THREE.Shape(sh.o.map(([x, y]) => new THREE.Vector2(x * SC, y * SC)));
+    sh.h.forEach((h) => shape.holes.push(new THREE.Path(h.map(([x, y]) => new THREE.Vector2(x * SC, y * SC)))));
+    return shape;
+  };
+  const ext = { depth: 0.34, bevelEnabled: true, bevelThickness: 0.07, bevelSize: 0.035, bevelSegments: lite ? 3 : 5, steps: 1, curveSegments: 4 };
+  for (const [kind, mat] of [["azul", azul], ["naranja", naranja]]) {
+    for (const sh of MOTO[kind]) {
+      const geo = new THREE.ExtrudeGeometry(shapeOf(sh), ext);
+      geo.translate(0, 0, -0.17);
+      moto.add(new THREE.Mesh(geo, mat));
+    }
+  }
+
+  // speed streaks: thin capsules racing right to left behind the moto
+  const N = lite ? 26 : 48;
+  const streakGeo = new THREE.CapsuleGeometry(0.018, 1, 4, 8); streakGeo.rotateZ(Math.PI / 2);
+  const streakMat = new THREE.MeshBasicMaterial({ color: 0x5aaee6, transparent: true, opacity: 0.35 });
+  const streaks = new THREE.InstancedMesh(streakGeo, streakMat, N); rig.add(streaks);
+  const S = []; const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), v = new THREE.Vector3(), sc = new THREE.Vector3();
+  for (let i = 0; i < N; i++) S.push({ x: (Math.random() * 2 - 1) * 7, y: (Math.random() * 2 - 1) * 2.6, z: -2.5 - Math.random() * 3, len: 0.4 + Math.random() * 1.4, sp: 2 + Math.random() * 4 });
+
+  // glow on the floor
+  const cv = document.createElement("canvas"); cv.width = cv.height = 256;
+  const cx = cv.getContext("2d"), gr = cx.createRadialGradient(128, 128, 0, 128, 128, 128);
+  gr.addColorStop(0, "rgba(246,90,5,.5)"); gr.addColorStop(1, "rgba(246,90,5,0)"); cx.fillStyle = gr; cx.fillRect(0, 0, 256, 256);
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
+  const glow = new THREE.Mesh(new THREE.PlaneGeometry(4.6, 4.6), new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false }));
+  glow.rotation.x = -Math.PI / 2; glow.position.y = -2.0; rig.add(glow);
+
+  let fit = 1, gx = 0, gy = 0;
+  function resize(){
+    const w = stage.clientWidth, h = stage.clientHeight; if (!w || !h) return;
+    renderer.setSize(w, h, false); camera.aspect = w / h;
+    const wide = !matchMedia("(max-width: 860px)").matches;
+    gx = wide ? Math.min(2.6, 0.7 + (w / h) * 0.95) : 0; gy = wide ? 0 : -0.1;
+    fit = wide ? 1 : Math.max(0.85, 1.15 / (w / h));
+    camera.updateProjectionMatrix(); rig.position.set(gx, gy, 0);
+  }
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  let prog = 0, eased = 0, px = 0, py = 0, tx = 0, ty = 0;
+  const onScroll = () => { const r = hero.getBoundingClientRect(); prog = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height))); };
+  addEventListener("scroll", onScroll, { passive: true }); onScroll();
+  hero.addEventListener("pointermove", (e) => { if (e.pointerType === "touch") return; const r = hero.getBoundingClientRect(); tx = (e.clientX - r.left) / r.width - 0.5; ty = (e.clientY - r.top) / r.height - 0.5; });
+  hero.addEventListener("pointerleave", () => { tx = 0; ty = 0; });
+
+  let visible = true;
+  const io = new IntersectionObserver((en) => { visible = en[0].isIntersecting; renderer.setAnimationLoop(visible ? frame : null); });
+  io.observe(hero);
+
+  let last = performance.now(), t = 0;
+  function frame(now){
+    const dt = Math.min((now - last) / 1000, 0.05); last = now; t += dt;
+    eased += (prog - eased) * (reduce ? 1 : Math.min(1, dt * 4));
+    px += (tx - px) * Math.min(1, dt * 3); py += (ty - py) * Math.min(1, dt * 3);
+    if (!reduce) {
+      rig.position.y = gy + Math.sin(t * 1.1) * 0.06;
+      moto.rotation.z = Math.sin(t * 2.2) * 0.015;     // a light bounce, like riding
+      for (let i = 0; i < N; i++) {
+        const s = S[i]; s.x -= s.sp * dt * (1 + eased * 3);
+        if (s.x < -8) { s.x = 8; s.y = (Math.random() * 2 - 1) * 2.6; }
+        v.set(s.x - gx * 0.3, s.y, s.z); sc.set(s.len, 1, 1); m4.compose(v, q, sc); streaks.setMatrixAt(i, m4);
+      }
+      streaks.instanceMatrix.needsUpdate = true;
+    } else if (t < 0.1) {
+      for (let i = 0; i < N; i++) { const s = S[i]; v.set(s.x, s.y, s.z); sc.set(s.len, 1, 1); m4.compose(v, q, sc); streaks.setMatrixAt(i, m4); }
+      streaks.instanceMatrix.needsUpdate = true;
+    }
+    rig.rotation.y = -0.22 + px * 0.5 + (reduce ? 0 : Math.sin(t * 0.4) * 0.18);
+    rig.rotation.x = 0.06 + py * 0.25;
+    camera.position.set(0, 0.3 + eased * 0.8, (11 - eased * 4) * fit);
+    camera.lookAt(rig.position.x * eased * 0.5, 0.1 + eased * 0.3, 0);
+    renderer.render(scene, camera);
+  }
+  renderer.setAnimationLoop(frame);
+  requestAnimationFrame(() => stage.classList.add("on"));
+  renderer.domElement.addEventListener("webglcontextlost", (e) => { e.preventDefault(); renderer.setAnimationLoop(null); stage.classList.remove("on"); });
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/SplitText.min.js"></script>
+<script>
+(function(){
+  if (!window.gsap || !window.ScrollTrigger || !window.SplitText) return; // the page reads fine without motion
+  gsap.registerPlugin(ScrollTrigger, SplitText);
+  ScrollTrigger.config({ ignoreMobileResize: true });
+  const topH = () => document.querySelector(".top")?.offsetHeight || 0;
+  const mm = gsap.matchMedia();
+  mm.add({ ok: "(prefers-reduced-motion: no-preference)", wide: "(min-width: 861px)" }, (ctx) => {
+    const { ok, wide } = ctx.conditions;
+    if (!ok) return;
+
+    // load sequence
+    const split = SplitText.create(".hero h1", { type: "words, chars", mask: "words", wordsClass: "hw" });
+    gsap.timeline({ defaults: { ease: "power3.out" } })
+      .from(".hero .eyebrow", { autoAlpha: 0, y: 14, duration: 0.5 })
+      .from(split.chars, { yPercent: 115, duration: 0.85, stagger: 0.025, ease: "power4.out" }, "-=0.3")
+      .from(".hero .lead", { autoAlpha: 0, y: 20, duration: 0.7 }, "-=0.45")
+      .from(".hero .ctas > *", { autoAlpha: 0, y: 16, duration: 0.6, stagger: 0.1 }, "-=0.45")
+      .from(".desliza", { autoAlpha: 0, duration: 0.5 }, "-=0.2");
+
+    gsap.to("#hero-stage", { yPercent: 18, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 0.6 } });
+
+    // section heads rise in
+    gsap.utils.toArray("section:not(.hero):not(.cinta) .head, .faq-grid > div:first-child").forEach((h) =>
+      gsap.from(h.children, { autoAlpha: 0, y: 34, duration: 0.8, stagger: 0.12, ease: "power3.out", scrollTrigger: { trigger: h, start: "top 85%", once: true } }));
+
+    // cards rise with a tilt
+    ScrollTrigger.batch(".card", { start: "top 88%", once: true,
+      onEnter: (els) => gsap.from(els, { autoAlpha: 0, y: 60, rotationX: 14, transformPerspective: 900, transformOrigin: "50% 100%", duration: 0.9, stagger: 0.12, ease: "power3.out", clearProps: "transform,opacity,visibility",
+        onStart(){ els.forEach(el => el.classList.add("entrando")); }, onComplete(){ els.forEach(el => el.classList.remove("entrando")); } }) });
+
+    // the ruta: pinned on wide screens; the moto rides the road and each step lights up as it passes
+    const pasos = gsap.utils.toArray(".paso"), bar = document.querySelector(".camino i"), moto = document.querySelector(".moto");
+    if (wide) {
+      gsap.set(bar, { scaleX: 0 }); gsap.set(pasos, { autoAlpha: 0.25, y: 24 });
+      const tl = gsap.timeline({ defaults: { ease: "none" }, scrollTrigger: { trigger: ".ruta", start: () => "top " + topH(), end: "+=150%", pin: true, scrub: 0.7, anticipatePin: 1, invalidateOnRefresh: true } });
+      tl.fromTo(moto, { "--k": 0 }, { "--k": 1, duration: 4 }, 0).to(bar, { scaleX: 1, duration: 4 }, 0);
+      pasos.forEach((p, i) => tl.to(p, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, i * 1.05));
+    } else {
+      gsap.set(bar, { scaleY: 0 });
+      gsap.to(bar, { scaleY: 1, ease: "none", scrollTrigger: { trigger: ".pasos", start: "top 75%", end: "bottom 60%", scrub: 0.5 } });
+      pasos.forEach((p) => gsap.from(p, { autoAlpha: 0, x: 30, duration: 0.7, ease: "power3.out", scrollTrigger: { trigger: p, start: "top 85%", once: true } }));
+    }
+
+    // the week: days fill in one by one, payday pops last
+    gsap.from(".dia", { autoAlpha: 0, y: 24, scale: 0.9, duration: 0.5, stagger: 0.07, ease: "back.out(2)", scrollTrigger: { trigger: ".semana", start: "top 85%", once: true } });
+
+    // cities light up along the route
+    gsap.from(".ciudad", { autoAlpha: 0, y: 30, duration: 0.7, stagger: 0.18, ease: "power3.out", scrollTrigger: { trigger: ".ciudades", start: "top 85%", once: true } });
+
+    return () => { split.revert(); };
+  });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => ScrollTrigger.refresh());
+})();
+</script>
+
+<script>
+/* Physical cards: tilt toward the pointer, lift, cast a shadow away from it and catch a sheen; under the finger on phones. */
+(function(){
+  const ok = matchMedia("(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)");
+  const touchOk = matchMedia("(prefers-reduced-motion: no-preference)");
+  const MAX = 7;
+  document.querySelectorAll(".card").forEach((card) => {
+    let raf = 0, e0 = null;
+    const paint = () => { raf = 0; const r = card.getBoundingClientRect();
+      const px = Math.min(1, Math.max(0, (e0.clientX - r.left) / r.width)), py = Math.min(1, Math.max(0, (e0.clientY - r.top) / r.height));
+      card.style.setProperty("--ry", ((px - 0.5) * 2 * MAX).toFixed(2) + "deg"); card.style.setProperty("--rx", ((0.5 - py) * 2 * MAX).toFixed(2) + "deg");
+      card.style.setProperty("--mx", (px * 100).toFixed(1) + "%"); card.style.setProperty("--my", (py * 100).toFixed(1) + "%");
+      card.style.setProperty("--sx", ((0.5 - px) * 28).toFixed(1) + "px"); card.style.setProperty("--sy", (14 + (0.5 - py) * 20).toFixed(1) + "px"); };
+    const reset = () => { if (raf) { cancelAnimationFrame(raf); raf = 0; } card.style.setProperty("--rx", "0deg"); card.style.setProperty("--ry", "0deg"); };
+    const live = (e) => ok.matches && e.pointerType !== "touch";
+    card.addEventListener("pointerenter", (e) => { if (live(e)) card.classList.add("is-hover"); });
+    card.addEventListener("pointermove", (e) => {
+      if (live(e) || (e.pointerType === "touch" && card.classList.contains("is-touch"))) { e0 = e; if (!raf) raf = requestAnimationFrame(paint); } });
+    card.addEventListener("pointerdown", (e) => { if (e.pointerType === "touch" && touchOk.matches) { e0 = e; paint(); card.classList.add("is-touch"); } });
+    const end = () => { if (card.classList.contains("is-touch")) { card.classList.remove("is-touch"); reset(); } };
+    card.addEventListener("pointerup", end);
+    card.addEventListener("pointercancel", () => { end(); card.classList.remove("is-hover"); });
+    card.addEventListener("pointerleave", () => { end(); card.classList.remove("is-hover"); reset(); });
+  });
+})();
+</script>
+
+</body>
+</html>
